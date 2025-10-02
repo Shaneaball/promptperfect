@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-g" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Perfect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'ad-blue': '#003366',
+              'ad-gold': '#FFD700',
+              'ad-bg': '#F5F5F5',
+              'ad-text-dark': '#4A4A4A',
+              'ad-text-light': '#F5F5F5',
+            },
+            fontFamily: {
+              'sans': ['Montserrat', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Montserrat', sans-serif;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@19.1.1",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@19.1.1/client",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "url": "https://aistudiocdn.com/url@^0.11.4",
+    "express": "https://aistudiocdn.com/express@^5.1.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "path": "https://aistudiocdn.com/path@^0.12.7"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-ad-bg text-ad-text-dark">
+    <div id="root"></div>
+    <script type="module">
+      // This script contains all the application's code, bundled for portability.
+      import React from 'react';
+      import ReactDOM from 'react-dom/client';
+
+      const h = React.createElement;
+
+      // --- Bundled Component: StageInput ---
+      const StageInput = ({ stage, title, description, label, value, name, onChange, isTextarea = false, tips }) => {
+        const commonInputStyles = "w-full p-3 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-ad-gold focus:border-ad-gold transition duration-150 ease-in-out text-ad-text-dark";
+
+        const handleInputChange = (e) => {
+          onChange(name, e.target.value);
+        };
+
+        const hasHeader = title.trim() !== '';
+
+        const inputElement = isTextarea ?
+          h('textarea', { id: name, name: name, value: value, onChange: handleInputChange, rows: 5, className: commonInputStyles, 'aria-label': label }) :
+          h('input', { type: 'text', id: name, name: name, value: value, onChange: handleInputChange, className: commonInputStyles, 'aria-label': label });
+
+        const tipsElement = tips && h('div', { className: "mt-3 flex items-start text-sm text-gray-500 bg-gray-50 p-3 rounded-md" },
+          h('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-5 w-5 mr-2 flex-shrink-0 text-ad-gold", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2, 'aria-hidden': "true" },
+            h('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" })
+          ),
+          h('p', { className: "italic" }, tips)
+        );
+
+        return h('div', { className: "bg-white p-6 rounded-lg shadow-md mb-6 transition-all duration-300 hover:shadow-lg" },
+          hasHeader && h('h3', { className: "text-xl font-bold text-ad-blue mb-2" },
+            h('span', { className: "bg-ad-blue text-ad-gold rounded-full w-8 h-8 inline-flex items-center justify-center mr-3" }, stage),
+            title
+          ),
+          h('p', { className: `text-gray-600 mb-4 ${hasHeader ? 'ml-11' : ''}` }, description),
+          h('div', { className: hasHeader ? 'ml-11' : '' },
+            h('label', { htmlFor: name, className: "block text-sm font-bold text-ad-text-dark mb-2" }, label),
+            inputElement,
+            tipsElement
+          )
+        );
+      };
+
+      // --- Bundled Component: GeneratedPrompt ---
+      const generatePromptText = (data) => {
+        const sections = [
+          { title: 'ROLE', content: data.persona, placeholder: '[Answer from Persona]' },
+          { title: 'TASK', content: data.task, placeholder: '[Answer from Task]' },
+          { title: 'CONTEXT', content: data.context },
+          { title: 'EXAMPLE', content: data.example },
+          { title: 'EVALUATION', content: data.evaluation },
+          { title: 'REFINEMENTS', content: data.refinements },
+          { title: 'CONSTRAINTS', content: data.constraints },
+        ];
+
+        let prompt = '';
+        sections.forEach(section => {
+          if (section.content || section.placeholder) {
+            prompt += `**${section.title}**\n${section.content || section.placeholder}\n\n`;
+          }
+        });
+        return prompt.trim();
+      };
+      
+      const GeneratedPrompt = ({ data }) => {
+        const { useState, useEffect, useCallback } = React;
+        const [copyButtonText, setCopyButtonText] = useState('Copy Prompt');
+        const promptText = generatePromptText(data);
+
+        const handleCopy = useCallback(() => {
+          navigator.clipboard.writeText(promptText).then(() => {
+            setCopyButtonText('Copied!');
+          }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            setCopyButtonText('Copy Failed');
+          });
+        }, [promptText]);
+
+        useEffect(() => {
+          if (copyButtonText === 'Copied!' || copyButtonText === 'Copy Failed') {
+            const timer = setTimeout(() => {
+              setCopyButtonText('Copy Prompt');
+            }, 2000);
+            return () => clearTimeout(timer);
+          }
+        }, [copyButtonText]);
+
+        return h('div', { className: "bg-ad-blue text-ad-text-light p-6 rounded-lg shadow-lg" },
+          h('h2', { className: "text-2xl font-bold text-ad-gold mb-4" }, "Your Generated Prompt"),
+          h('div', { className: "bg-ad-text-dark/50 p-4 rounded-md mb-4" },
+            h('pre', { className: "whitespace-pre-wrap font-mono text-sm leading-relaxed" }, promptText)
+          ),
+          h('button', {
+            onClick: handleCopy,
+            className: "w-full bg-ad-gold text-ad-blue font-bold py-3 px-4 rounded-md hover:bg-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ad-blue focus:ring-ad-gold"
+          }, copyButtonText)
+        );
+      };
+
+      // --- Bundled Component: App ---
+      const App = () => {
+        const { useState } = React;
+        const [promptData, setPromptData] = useState({
+          task: '', persona: '', context: '', example: '', evaluation: '', refinements: '', constraints: '',
+        });
+        const [generatedData, setGeneratedData] = useState(null);
+
+        const handleInputChange = (name, value) => {
+          setPromptData(prev => ({ ...prev, [name]: value }));
+        };
+
+        const handleGeneratePrompt = () => {
+          setGeneratedData(promptData);
+        };
+
+        const Divider = () => h('hr', { className: "my-8 border-t-2 border-ad-gold" });
+
+        const stage5Content = generatedData && h(React.Fragment, null,
+          h(Divider),
+          h('div', { className: "my-8" }, h(GeneratedPrompt, { data: generatedData })),
+          h(Divider),
+          h(StageInput, { stage: 5, title: "Iteration", description: "Add any final adjustments or rules.", label: "Refinements", name: "refinements", value: promptData.refinements, onChange: handleInputChange, tips: "Tip: Use this to guide the AI's behavior. 'If the user asks for code, provide it in Python.' or 'Avoid using technical jargon'." }),
+          h(StageInput, { stage: 5, title: "", description: "Specify things the AI absolutely should not do.", label: "Constraints", name: "constraints", value: promptData.constraints, onChange: handleInputChange, tips: "Tip: Be explicit about boundaries. 'Do not mention competitors.' or 'The response must not exceed 100 words'." })
+        );
+
+        return h('div', { className: "min-h-screen flex flex-col" },
+          h('header', { className: "bg-ad-blue text-ad-text-light py-6 shadow-md" },
+            h('div', { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center" },
+              h('h1', { className: "text-4xl font-bold text-ad-gold tracking-wide" }, "Prompt Perfect"),
+              h('p', { className: "mt-2 text-lg text-gray-300" }, "A guided console to help you construct effective prompts for AI models.")
+            )
+          ),
+          h('main', { className: "max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full" },
+            h('div', null,
+              h(StageInput, { stage: 1, title: "Task", description: "Clearly state what you want the AI to do.", label: "Task", name: "task", value: promptData.task, onChange: handleInputChange, tips: "Tip: Be specific and action-oriented. Start with a verb like 'Create', 'Write', 'Analyze', or 'Summarize'. ‘Expert tip’ Write short sentences." }),
+              h(StageInput, { stage: 1, title: "", description: "Define who the AI should be.", label: "Persona / Role", name: "persona", value: promptData.persona, onChange: handleInputChange, tips: "Tip: Think about the tone and expertise you want. Examples: 'a smart marketing expert..', 'a formal academic researcher'." }),
+              h(Divider),
+              h(StageInput, { stage: 2, title: "Context", description: "Give background information or data the AI needs to complete the task.", label: "Context", name: "context", value: promptData.context, onChange: handleInputChange, isTextarea: true, tips: "Tip: Provide the 'why' behind the task. Who is the audience? What is the goal? The more background, the better." }),
+              h(Divider),
+              h(StageInput, { stage: 3, title: "References", description: "Provide a clear, high-quality example of the desired output.", label: "Example", name: "example", value: promptData.example, onChange: handleInputChange, isTextarea: true, tips: "Tip: A good example is worth a thousand words. Describe to the AI exactly what a successful output looks like." }),
+              h(Divider),
+              h(StageInput, { stage: 4, title: "Evaluation", description: "How should the AI's output be judged? (e.g., accuracy, creativity, tone)", label: "Evaluation Criteria", name: "evaluation", value: promptData.evaluation, onChange: handleInputChange, tips: "Tip: Define success. 'The code must be well-commented', 'The summary should be under 200 words and use a professional tone'." }),
+              stage5Content,
+              h('button', {
+                onClick: handleGeneratePrompt,
+                className: "w-full bg-ad-blue text-ad-gold font-bold text-lg py-4 px-6 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ad-gold my-8",
+                'aria-label': generatedData ? "Refresh Prompt" : "Generate Prompt"
+              }, generatedData ? 'Refresh Prompt' : 'Generate Prompt')
+            )
+          ),
+          h('footer', { className: "text-center py-6 bg-ad-bg text-gray-500 text-sm" },
+            h('p', null, "Built by Achievement Digital, Auckland, New Zealand")
+          )
+        );
+      };
+      
+      // --- Application Entry Point ---
+      const rootElement = document.getElementById('root');
+      if (!rootElement) {
+        throw new Error("Could not find root element to mount to");
+      }
+
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(
+        h(React.StrictMode, null, h(App, null))
+      );
+    </script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
